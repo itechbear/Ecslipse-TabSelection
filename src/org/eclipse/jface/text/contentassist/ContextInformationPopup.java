@@ -787,6 +787,17 @@ class ContextInformationPopup implements IContentAssistListener {
 						hideContextInfoPopup();
 					break;
 			}
+			
+		/**-- patch begins --**/
+		} else if (key == '\t') {
+			e.character = 0;
+			if (0 == (e.stateMask & SWT.SHIFT)) {
+				e.keyCode = SWT.ARROW_DOWN;
+			} else {
+				e.keyCode = SWT.ARROW_UP;
+			}
+			validateContextInformation();
+		/**-- patch ends --**/
 
 		} else if (key == SWT.ESC) {
 			e.doit= false;

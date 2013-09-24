@@ -1323,22 +1323,57 @@ class CompletionProposalPopup implements IContentAssistListener {
 				insertSelectedProposalWithMask(e.stateMask);
 				break;
 
+			/**-- patch begins --**/
 			case '\t':
-				e.doit= false;
-				fProposalShell.setFocus();
+				e.doit = false;
+				int newSelection = fProposalTable.getSelectionIndex();
+				int itemCount = fProposalTable.getItemCount();
+				// fProposalShell.setFocus();
+				if (0 == (e.stateMask & SWT.SHIFT)) {
+					newSelection += 1;
+					if (newSelection > itemCount - 1)
+						newSelection = 0;
+				} else {
+					newSelection -= 1;
+					if (newSelection < 0)
+						newSelection = itemCount - 1;
+				}
+				selectProposal(newSelection, (e.stateMask & SWT.CTRL) != 0);
 				return false;
 
 			default:
-				ICompletionProposal p= getSelectedProposal();
-				if (p instanceof ICompletionProposalExtension) {
-					ICompletionProposalExtension t= (ICompletionProposalExtension) p;
-					char[] triggers= t.getTriggerCharacters();
+				if (key < 'A' || (key > 'Z' && key < 'a') || key > 'z') {
+					hide();
+				}
+				ICompletionProposal proposal = getSelectedProposal();
+				if (proposal instanceof ICompletionProposalExtension) {
+					ICompletionProposalExtension t = (ICompletionProposalExtension) proposal;
+					char[] triggers = t.getTriggerCharacters();
 					if (contains(triggers, key)) {
-						e.doit= false;
+						e.doit = false;
 						hide();
-						insertProposal(p, key, e.stateMask, fContentAssistSubjectControlAdapter.getSelectedRange().x);
+						insertProposal(proposal, key, e.stateMask,
+								fContentAssistSubjectControlAdapter
+										.getSelectedRange().x);
 					}
-			}
+				}
+		/**-- patch ends --**/
+//			case '\t':
+//				e.doit= false;
+//				fProposalShell.setFocus();
+//				return false;
+//
+//			default:
+//				ICompletionProposal p= getSelectedProposal();
+//				if (p instanceof ICompletionProposalExtension) {
+//					ICompletionProposalExtension t= (ICompletionProposalExtension) p;
+//					char[] triggers= t.getTriggerCharacters();
+//					if (contains(triggers, key)) {
+//						e.doit= false;
+//						hide();
+//						insertProposal(p, key, e.stateMask, fContentAssistSubjectControlAdapter.getSelectedRange().x);
+//					}
+//			}
 		}
 
 		return true;
